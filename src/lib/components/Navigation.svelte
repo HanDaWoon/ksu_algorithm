@@ -21,7 +21,8 @@
 		isLoading = true;
 		window.sessionStorage.removeItem('user.studNo');
 		window.sessionStorage.removeItem('user.name');
-
+		window.sessionStorage.removeItem('user.grade');
+		window.sessionStorage.removeItem('user.team');
 		user.set(null);
 		return (isLoading = false);
 	};

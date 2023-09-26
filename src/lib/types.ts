@@ -11,9 +11,11 @@ interface INotice {
 }
 
 interface IProblem {
-	no: number;
 	title: string;
-	body: string;
+	lang: string;
+	result: string;
+	runtime: number;
+	memory: number;
 }
 
 interface ISubmit {
@@ -26,10 +28,6 @@ interface ISubmit {
 	state: string; // 체점 중 or 체점 완료
 	extra: string; // 세부 사항 들
 	result: string; // 결과 (정답 or 오답)
-	code_size: number;
-	submit_at: string;
-	runtime: number;
-	memory: number;
 }
 
 interface INotice {
@@ -45,7 +43,9 @@ interface IStudent {
 	k: number; // 맞은 문제 수
 	d: number; // 틀린 문제 수
 	a: number; // pending 문제 수
-	rank: number;
+	team: string;
+	score: number;
+	grade: number;
 }
 
 interface ILoginResult {

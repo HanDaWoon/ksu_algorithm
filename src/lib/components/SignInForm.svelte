@@ -4,6 +4,7 @@
 	import { writable } from 'svelte/store';
 	import { customFetch } from '$lib/customFetch';
 	import type { IFetchResponse, ILoginResult, IStudent } from '$lib/types';
+
 	let isLoading = false;
 	let msg: string = '';
 	let studNo!: string;
@@ -17,7 +18,7 @@
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				query: `{ login(studNo: "${studNo}", password: "${password}") { success result } }`
+				query: `{ login(studNo: "${studNo}", password: "${password}") { success message } }`
 			})
 		})
 			.then((res: IFetchResponse<ILoginResult>) => {
@@ -28,7 +29,7 @@
 			})
 			.then(async (login: ILoginResult) => {
 				if (!login.success) {
-					throw new Error(login.result);
+					throw new Error(login.message);
 				} else {
 					await handleGetStd();
 					isLoading = false;
@@ -47,7 +48,7 @@
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				query: `{ info { name studNo state } }`
+				query: `{ info { studNo name state team grade } }`
 			})
 		})
 			.then((res: IFetchResponse<IStudent>) => {
@@ -59,20 +60,24 @@
 			.then((info: IStudent) => {
 				const studNo = info.studNo;
 				const name = info.name;
-				if (info.state === '0') {
+				const team = info.team;
+				const grade = info.grade.toString();
+				if (parseInt(info.state) === 0) {
 					writable(null).subscribe(() => {
 						if (browser) {
 							window.sessionStorage.setItem('user.studNo', studNo);
 							window.sessionStorage.setItem('user.name', name);
+							window.sessionStorage.setItem('user.team', team);
+							window.sessionStorage.setItem('user.grade', grade);
 						}
 					});
-					user.set({ studNo, name });
+					user.set({ studNo, name, team, grade });
 					return;
 				}
-				return new Error('유저 확인 실패');
+				throw new Error('유저 확인 실패');
 			})
 			.catch((e: Error) => {
-				throw new Error(e.message);
+				console.log(e.message);
 			});
 </script>
 
