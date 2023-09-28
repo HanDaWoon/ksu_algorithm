@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ClarificationTable from '$lib/components/NoticeTable.svelte';
-	import SubmissionTable from '$lib/components/ProblemSetTable.svelte';
+	import SubmissionTable from '$lib/components/SubmissionTable.svelte';
 	import UserScore from '$lib/components/UserScore.svelte';
 </script>
 

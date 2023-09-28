@@ -23,6 +23,8 @@
 		window.sessionStorage.removeItem('user.name');
 		window.sessionStorage.removeItem('user.grade');
 		window.sessionStorage.removeItem('user.team');
+
+		// cookie 삭제?
 		user.set(null);
 		return (isLoading = false);
 	};
@@ -32,9 +34,6 @@
 	<nav class="container mx-auto">
 		<div class="w-full py-4 flex items-center justify-between">
 			<div class="flex items-center">
-				<div class="text-lg text-green-400">
-					{get(user)?.name + '(' + get(user)?.studNo + ')'}
-				</div>
 				<div class="ml-10 space-x-6">
 					{#each navigation as link}
 						<a href={link.href} class="text-lg font-medium text-white hover:text-indigo-50">
@@ -42,6 +41,9 @@
 						</a>
 					{/each}
 				</div>
+			</div>
+			<div class="text-lg font-bold">
+				{get(user)?.name + '(' + get(user)?.studNo + ')'}
 			</div>
 			<CurrentStatus />
 			<div class="ml-10 space-x-4">

@@ -2,7 +2,7 @@
 	import { customFetch } from '$lib/customFetch';
 	import type { IFetchResponse, INotice } from '$lib/types';
 
-	$: handleNotice = customFetch<IFetchResponse<INotice[]>>('', {
+	$: handleNotice = customFetch<IFetchResponse<INotice[]>>({
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'

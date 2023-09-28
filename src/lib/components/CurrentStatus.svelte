@@ -4,7 +4,7 @@
 	import { calculateRemainingTime } from '$lib/utils';
 
 	let remainingTime: string;
-	$: handleStudStat = customFetch<IFetchResponse<IStudent>>('', {
+	$: handleStudStat = customFetch<IFetchResponse<IStudent>>({
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'

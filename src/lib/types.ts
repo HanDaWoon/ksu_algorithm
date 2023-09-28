@@ -11,11 +11,9 @@ interface INotice {
 }
 
 interface IProblem {
+	no: string;
 	title: string;
-	lang: string;
-	result: string;
-	runtime: number;
-	memory: number;
+	body: string;
 }
 
 interface ISubmit {
