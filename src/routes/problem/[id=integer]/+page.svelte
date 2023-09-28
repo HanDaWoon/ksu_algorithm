@@ -1,18 +1,43 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { get } from 'svelte/store';
-	import { customFetch } from '$lib/customFetch';
-	import type { IFetchResponse, IProblem } from '$lib/types';
-	import type { PageData } from './$types';
+	import Monaco from '$lib/components/Monaco.svelte';
+	import RunOut from '$lib/components/RunOut.svelte';
+	import { ButtonGroup, Button } from 'flowbite-svelte';
 
-	export let data: PageData;
-
-	$: console.log(data);
+	let languages = [
+		'C',
+		'C++',
+		'Java',
+		'Python',
+		'Kotlin',
+		'Rust',
+		'Go',
+		'JavaScript',
+		'Typescript'
+	];
+	let selected_language: string = 'C';
+	let selected_theme: string = 'light';
+	let value = '';
 </script>
 
-{#if data}
+<div class="flex flex-row">
 	<article class="prose lg:prose-xl">
-		<h3>{data.problem.title}</h3>
-		<div contenteditable="true" bind:innerHTML={data.problem.body} />
+		<h3>{$page.data.problem.title}</h3>
+		<div contenteditable="false" bind:innerHTML={$page.data.problem.body} />
 	</article>
-{/if}
+	<section class="w-full h-screen">
+		<header>
+			<ButtonGroup divClass="inline px-2">
+				<Button on:click={() => (selected_theme = 'dark')}>Dark</Button>
+				<Button on:click={() => (selected_theme = 'light')}>Light</Button>
+			</ButtonGroup>
+
+			<select name="language" bind:value={selected_language}>
+				{#each languages as language}
+					<option>{language}</option>
+				{/each}
+			</select>
+		</header>
+		<Monaco {selected_language} {selected_theme} bind:value />
+	</section>
+</div>

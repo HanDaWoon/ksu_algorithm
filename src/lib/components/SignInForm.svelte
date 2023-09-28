@@ -12,7 +12,7 @@
 
 	const handleSignIn = async () => {
 		isLoading = true;
-		await customFetch<IFetchResponse<ILoginResult>>('', {
+		await customFetch<IFetchResponse<ILoginResult>>({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -42,13 +42,13 @@
 	};
 
 	const handleGetStd = async () =>
-		await customFetch<IFetchResponse<IStudent>>('', {
+		await customFetch<IFetchResponse<IStudent>>({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				query: `{ info { studNo name state team grade } }`
+				query: `{ info { id studNo name state team grade } }`
 			})
 		})
 			.then((res: IFetchResponse<IStudent>) => {
@@ -58,26 +58,28 @@
 				return res.data.info;
 			})
 			.then((info: IStudent) => {
+				const studId = info.id.toString();
 				const studNo = info.studNo;
 				const name = info.name;
 				const team = info.team;
 				const grade = info.grade.toString();
-				if (parseInt(info.state) === 0) {
+				const state = parseInt(info.state);
+				if (state === 0) {
 					writable(null).subscribe(() => {
 						if (browser) {
+							window.sessionStorage.setItem('user.studId', studId);
 							window.sessionStorage.setItem('user.studNo', studNo);
 							window.sessionStorage.setItem('user.name', name);
 							window.sessionStorage.setItem('user.team', team);
 							window.sessionStorage.setItem('user.grade', grade);
 						}
 					});
-					user.set({ studNo, name, team, grade });
+					user.set({ studId, studNo, name, team, grade });
 					return;
-				}
-				throw new Error('유저 확인 실패');
+				} else if (state === 1) return new Error('조기 퇴실 유저');
 			})
 			.catch((e: Error) => {
-				console.log(e.message);
+				return new Error('유저 확인 실패');
 			});
 </script>
 

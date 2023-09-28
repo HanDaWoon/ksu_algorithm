@@ -1,35 +1,21 @@
-import type { PageLoad } from '../../$types';
-import type { IProblem, IFetchResponse } from '$lib/types';
+export const ssr = false;
 import { customFetch } from '$lib/customFetch';
+import type { IFetchResponse, IProblem } from '$lib/types';
+import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ route, fetch }) => {
-	const res = await fetch('', {
+export const load: PageLoad = async ({ params }) => {
+	const { id } = params;
+	const problemData = await customFetch<IFetchResponse<IProblem>>({
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
-			query: `{ problem(problemNo: ${route.id}) { no title body } }`
-		}),
-		credentials: 'include',
-	})
-		.then((res) => res.json())
-		.then((res) => {
-			if (res.errors) throw new Error(res.errors[0].message);
-			return res.data.problem;
+			query: `{ problem(no: ${id}) { no title body } }`
 		})
-		.catch((e: Error) => {
-			return {
-				title: '문제를 불러오는 데 실패했습니다',
-				body: e.message
-			};
-		});
-	const problemData = await res;
-
-	return {
-		problem: {
-			title: problemData.title,
-			body: problemData.body
-		}
-	};
+	}).then((res: IFetchResponse<IProblem>) => {
+		if (res.errors) throw new Error(res.errors[0].message);
+		return res.data;
+	});
+	return problemData;
 };
