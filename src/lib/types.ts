@@ -11,12 +11,11 @@ interface INotice {
 }
 
 interface IProblem {
+	no : number;
 	title: string;
-	lang: string;
-	result: string;
-	runtime: number;
-	memory: number;
+	body: string;
 }
+
 
 interface ISubmit {
 	id: number;
@@ -28,6 +27,10 @@ interface ISubmit {
 	state: string; // 체점 중 or 체점 완료
 	extra: string; // 세부 사항 들
 	result: string; // 결과 (정답 or 오답)
+	submit_at : string;
+	code_size : string;
+	runtime : number;
+	memory : number;
 }
 
 interface INotice {
@@ -46,11 +49,31 @@ interface IStudent {
 	team: string;
 	score: number;
 	grade: number;
+	rank: number;
+	tries: ITry;
+}
+
+interface ITry {
+	[problemNo: string]: number;
 }
 
 interface ILoginResult {
 	success: boolean;
 	message: string;
+}
+
+interface ISubmission {
+	result: string;
+	try: number;
+}
+
+interface IProblemWithSubmit {
+	no : number;
+	lang : string;
+	result : string;
+	runtime : number;
+	memory : number;
+	submit_at : string;
 }
 
 interface IMutation {
@@ -67,4 +90,4 @@ interface IMutation {
 	): ISubmit;
 }
 
-export type { IFetchResponse, ILoginResult, INotice, IMutation, IStudent, ISubmit, IProblem };
+export type { IFetchResponse, ILoginResult, INotice, IMutation, IStudent, ISubmit, IProblem , ISubmission, IProblemWithSubmit, ITry};

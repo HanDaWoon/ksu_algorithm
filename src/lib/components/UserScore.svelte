@@ -1,54 +1,49 @@
-<!-- <script lang="ts">
+<script lang="ts">
+	export let studId: number;
+	export let tries: ITry;
+
 	import { customFetch } from '$lib/customFetch';
-	import type { IFetchResponse, IUserTable } from '$lib/types';
+	import type { IFetchResponse, IProblemWithSubmit, IStudent, ITry } from '$lib/types';
 	import ScoreCell from './ScoreCell.svelte';
-	$: handleUserTable = customFetch<IFetchResponse<IUserTable>>('/api/v1/userTable', {
-		method: 'GET',
+
+	let isLoading = true;
+	let hasError = false;
+	const query = `
+        query {
+            problemsWithSubmitByStudId(studId:${studId}){ no result }
+        }
+    `;
+
+	$: submits = customFetch<IFetchResponse<any>>('', {
+		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
-		}
+		},
+		body: JSON.stringify({ query })
 	})
-		.then((res: IFetchResponse<IUserTable>) => {
-			if (res.msg === 'ok') {
-				return res.data;
-			}
+		.then((res: IFetchResponse<any>) => {
+			if (res.errors) throw new Error(res.errors[0].message);
+			return res.data.problemsWithSubmitByStudId;
 		})
 		.catch((e: Error) => {
 			alert(e);
+			return [];
 		});
 </script>
 
-<div class="relative overflow-x-auto py-6">
-	{#await handleUserTable then userTable}
-		{#if userTable}
-			<table class="w-full text-center">
-				<thead class="text-xs uppercase bg-gray-50">
-					<tr>
-						<th scope="col" class="px-6 py-3">Rank</th>
-						<th scope="col" class="px-6 py-3">User</th>
-						<th scope="col" class="px-6 py-3">Score</th>
-						{#each userTable.submissions as submission}
-							<th scope="col" class="px-6 py-3">
-								{submission.problem}
-							</th>
-						{/each}
-					</tr>
-				</thead>
-				<tbody>
-					<tr class="bg-white border-b">
-						<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-							{userTable.rank}
-						</th>
-						<td class="px-6 py-4">{userTable.user.name}</td>
-						<td class="px-6 py-4">{userTable.score}</td>
-						{#each userTable.submissions as submission}
-							<td>
-								<ScoreCell {submission} />
-							</td>
-						{/each}
-					</tr>
-				</tbody>
-			</table>
-		{/if}
-	{/await}
-</div> -->
+{#await submits then submit}
+	{#if submit}
+		{#each submit as submit1}
+			<td class="px-6 py-3">
+				{submit1.result}
+				<!-- <ScoreCell
+					props={{
+						result: submit1.result,
+						score: submit1.no,
+						tries: tries[submit1.no]
+					}}
+				/> -->
+			</td>
+		{/each}
+	{/if}
+{/await}

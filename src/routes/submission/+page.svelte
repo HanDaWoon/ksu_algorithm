@@ -1,1 +1,7 @@
-<div class="text-lg">Submission</div>
+<script>
+	import AllSubmissionTable from '$lib/components/AllSubmissionTable.svelte';
+</script>
+
+<div class="text-lg">
+	<AllSubmissionTable />
+</div>

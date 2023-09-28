@@ -1,20 +1,27 @@
-<!-- <script lang="ts">
-	import type { ISubmission } from '$lib/types';
+<script lang="ts">
+	interface IScoreCellProps {
+		result: string;
+		score: number;
+		tries: number;
+	}
 
-	export let submission: ISubmission;
+	export let props: IScoreCellProps;
+
+	$: {
+		console.log(props);
+	}
 </script>
 
 <div
 	class="h-full w-full text-black"
-	class:bg-sunglo-400={submission.result === 'WRONG-ANSWER'}
-	class:bg-pastel-green-400={submission.result === 'CORRECT'}
-	class:bg-cornflower-blue-500={submission.result === 'PENDING'}
+	class:bg-sunglo-400={props.result === 'WRONG-ANSWER'}
+	class:bg-pastel-green-400={props.result === 'CORRECT'}
+	class:bg-cornflower-blue-500={props.result === 'PENDING'}
 >
 	<div class="text-base font-medium">
-		{submission.result}
+		{props.result}
 	</div>
 	<div>
-		<!-- try count === 1 ? try : tries -->
-		{submission.time}
+		{props.tries === 1 ? 'try' : `${props.tries} tries`}
 	</div>
-</div> -->
+</div>
