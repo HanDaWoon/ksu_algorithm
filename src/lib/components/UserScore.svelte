@@ -6,33 +6,54 @@
 	import type { IFetchResponse, IProblemWithSubmit, IStudent, ITry } from '$lib/types';
 	import ScoreCell from './ScoreCell.svelte';
 
-	let isLoading = true;
-	let hasError = false;
-	const query = `
-        query {
-            problemsWithSubmitByStudId(studId:${studId}){ no result }
-        }
-    `;
+	let submits: IProblemWithSubmit[] = [];
+	let students: IStudent[] = [];
 
-	$: submits = customFetch<IFetchResponse<any>>('', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ query })
-	})
-		.then((res: IFetchResponse<any>) => {
-			if (res.errors) throw new Error(res.errors[0].message);
-			return res.data.problemsWithSubmitByStudId;
+	const fetchData = async () => {
+		const _submits = await customFetch<IFetchResponse<IProblemWithSubmit[]>>({
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				query: ` query { problemsWithSubmitByStudId(studId:${studId}){ no result }}`
+			})
 		})
-		.catch((e: Error) => {
-			alert(e);
-			return [];
-		});
+			.then((res: IFetchResponse<IProblemWithSubmit[]>) => {
+				if (res.errors) throw new Error(res.errors[0].message);
+				return res.data.problemsWithSubmitByStudId;
+			})
+			.catch((e: Error) => {
+				alert(e);
+				return [];
+			});
+		submits = await _submits;
+
+		const _students = await customFetch<IFetchResponse<IStudent[]>>({
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				query: `query {rank {studNo tries }}`
+			})
+		})
+			.then((res: IFetchResponse<IStudent[]>) => {
+				if (res.errors) throw new Error(res.errors[0].message);
+				return res.data.rank;
+			})
+			.catch((e: Error) => {
+				alert(e);
+				return [];
+			});
+		students = await _students;
+	};
+
+	$: fetchData();
 </script>
 
 {#await submits then submit}
-	{#if submit}
+	{#if submit && students}
 		{#each submit as submit1}
 			<td class="px-6 py-3">
 				{submit1.result}
