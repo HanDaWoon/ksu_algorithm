@@ -5,89 +5,113 @@ interface IFetchResponse<T> {
 	errors?: [any];
 }
 
+interface ITry {
+	[key: string]: {
+		try_cnt: number;
+		score: number;
+	};
+}
+
+interface IStudent {
+	id: number;
+	studNo: string;
+	password?: string;
+	name?: string;
+	state?: number; // 0 = 로그인 가능, 1 = 로그인 불가, 2 = 조기 퇴소
+	k?: number;
+	d?: number;
+	a?: number;
+	team?: string;
+	score?: number;
+	grade?: number;
+	rank?: number;
+	tries?: ITry;
+}
+
+interface ILoginResponse {
+	success: boolean;
+	message: string;
+}
+
 interface INotice {
 	id: number;
 	title: string;
 }
 
 interface IProblem {
-	no : number;
+	no: number;
 	title: string;
 	body: string;
 }
 
+interface IProblemWithSubmit {
+	no: number;
+	title?: string;
+	lang: string;
+	result: string;
+	runtime: number;
+	memory: number;
+	submit_at: string;
+	score: number;
+	state: string;
+	type: string;
+	extra: string;
+}
 
 interface ISubmit {
 	id: number;
 	stud_id: number;
-	type: string; // 실행 or 제출
+	type?: string; // 0 = 실행, 1 = 제출
 	problemNo: number;
-	lang: string;
+	lang: string; // python, kotlin, java, c, cpp, rust, javascript
 	code: string;
-	state: string; // 체점 중 or 체점 완료
-	extra: string; // 세부 사항 들
-	result: string; // 결과 (정답 or 오답)
-	submit_at : string;
-	code_size : string;
-	runtime : number;
-	memory : number;
-}
-
-interface INotice {
-	id: number;
-	title: string;
-}
-
-interface IStudent {
-	id: number;
-	studNo: string;
-	name: string;
-	state: string; // 0: 로그인 가능, 1: 불가능, 2: 조기퇴실
-	k: number; // 맞은 문제 수
-	d: number; // 틀린 문제 수
-	a: number; // pending 문제 수
-	team: string;
+	state: string; // 0 = 채점 대기, 1 = 채점 중, 2 = 채점 완료
+	extra: string;
+	result: string; // null = 채점 상태 없음, 0 = 정답, 1 = 오답
+	code_size: number;
+	submit_at: string;
+	runtime: number; // millisecond 단위
+	memory: number; // byte 단위 (1000 = 1KiB)
 	score: number;
-	grade: number;
-	rank: number;
+}
+
+interface IScoreboard {
+	studNo: string;
 	tries: ITry;
 }
 
-interface ITry {
-	[problemNo: string]: number;
+interface IQuery {
+	login(studNo: string, password: string): ILoginResponse;
+	student(studNo: string): IStudent;
+	students: IStudent[];
+	notices: INotice[];
+	problems: IProblem[];
+	problem(no: number): IProblem;
+	problemsWithSubmit: IProblemWithSubmit[];
+	problemsWithSubmitByStudId(studId: number): IProblemWithSubmit[];
+	submits: ISubmit[];
+	submit: ISubmit[];
+	info: IStudent;
+	rank: IStudent[];
+	scoreboard: IScoreboard[];
 }
 
-interface ILoginResult {
-	success: boolean;
-	message: string;
+interface IModal {
+	title: string;
+	body: string;
+	etc?: {};
 }
 
-interface ISubmission {
-	result: string;
-	try: number;
-}
-
-interface IProblemWithSubmit {
-	no : number;
-	lang : string;
-	result : string;
-	runtime : number;
-	memory : number;
-	submit_at : string;
-}
-
-interface IMutation {
-	updateStudent(state: string, k: number, d: number, a: number): IStudent;
-	updateSubmit(
-		stud_id: number,
-		type: string,
-		problemNo: number,
-		lang: String,
-		code: String,
-		state: String,
-		extra: String,
-		result: String
-	): ISubmit;
-}
-
-export type { IFetchResponse, ILoginResult, INotice, IMutation, IStudent, ISubmit, IProblem , ISubmission, IProblemWithSubmit, ITry};
+export type {
+	IFetchResponse,
+	IStudent,
+	ILoginResponse,
+	INotice,
+	IProblem,
+	IProblemWithSubmit,
+	ISubmit,
+	IScoreboard,
+	ITry,
+	IQuery,
+	IModal
+};

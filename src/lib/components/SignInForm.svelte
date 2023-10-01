@@ -3,7 +3,7 @@
 	import { user } from '$lib/user';
 	import { writable } from 'svelte/store';
 	import { customFetch } from '$lib/customFetch';
-	import type { IFetchResponse, ILoginResult, IStudent } from '$lib/types';
+	import type { IFetchResponse, ILoginResponse, IStudent } from '$lib/types';
 
 	let isLoading = false;
 	let msg: string = '';
@@ -12,7 +12,7 @@
 
 	const handleSignIn = async () => {
 		isLoading = true;
-		await customFetch<IFetchResponse<ILoginResult>>({
+		await customFetch<IFetchResponse<ILoginResponse>>({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -21,13 +21,13 @@
 				query: `{ login(studNo: "${studNo}", password: "${password}") { success message } }`
 			})
 		})
-			.then((res: IFetchResponse<ILoginResult>) => {
+			.then((res: IFetchResponse<ILoginResponse>) => {
 				if (res.errors) {
 					throw new Error(res.errors[0].message);
 				}
 				return res.data.login;
 			})
-			.then(async (login: ILoginResult) => {
+			.then(async (login: ILoginResponse) => {
 				if (!login.success) {
 					throw new Error(login.message);
 				} else {
@@ -62,8 +62,8 @@
 				const studNo = info.studNo;
 				const name = info.name;
 				const team = info.team;
-				const grade = info.grade.toString();
-				const state = parseInt(info.state);
+				const grade = info.grade?.toString();
+				const state = info.state;
 				if (state === 0) {
 					writable(null).subscribe(() => {
 						if (browser) {

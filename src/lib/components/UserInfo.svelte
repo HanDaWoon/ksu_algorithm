@@ -1,52 +1,40 @@
 <script lang="ts">
+	export let rank: IStudent;
+	export let handleModal: (data: IModal) => void | undefined = undefined;
+
+	import type { IFetchResponse, IProblemWithSubmit, IStudent, IModal } from '$lib/types';
 	import { customFetch } from '$lib/customFetch';
-	import type { IFetchResponse, IProblemWithSubmit, IStudent } from '$lib/types';
 	import ScoreCell from './ScoreCell.svelte';
-	import UserScore from './UserScore.svelte';
-	let students: IStudent[] = [];
-	export let studId: number | null = null;
 
-	const fetchData = async () => {
-		const _students = await customFetch<IFetchResponse<IStudent[]>>({
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				query: `
-			query {
-				rank{ studNo rank team k score id tries}
-			}
-		`
-			})
+	$: handleUserInfo = customFetch<IFetchResponse<IProblemWithSubmit[]>>({
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no result title score state type extra} }`
 		})
-			.then((res: IFetchResponse<IStudent[]>) => {
-				if (res.errors) throw new Error(res.errors[0].message);
-				return res.data.rank;
-			})
-			.catch((e: Error) => {
-				alert(e);
-				return [];
-			});
-		students = await _students;
-	};
-
-	$: fetchData();
+	})
+		.then((res: IFetchResponse<IProblemWithSubmit[]>) => {
+			if (res.errors) throw new Error(res.errors[0].message);
+			return res.data.problemsWithSubmitByStudId.filter(
+				(ps: IProblemWithSubmit) => ps.type === '1'
+			);
+		})
+		.catch((e: Error) => {
+			alert(e);
+			return [];
+		});
 </script>
 
-<tbody class="relative overflow-x-auto py-6">
-	{#if students}
-		{#each students as student}
-			<!-- {#each students as student} -->
-			{#if studId === null || (studId === student.id && student.studNo === student.studNo)}
-				<tr class="bg-white border-b">
-					<td class=" w-24 px-6 py-3">{student.rank}</td>
-					<td class="w-48 px-6 py-3">{student.studNo} {student.team}</td>
-					<td class="w-36 px-6 py-3"><b>{student.k}</b> {student.score}</td>
-					<UserScore studId={student.id} tries={student.tries} />
-				</tr>
-			{/if}
-		{/each}
-		<!-- {/each} -->
-	{/if}
-</tbody>
+<tr class="border-b">
+	<td>{rank.rank}</td>
+	<td class="">
+		<p>{rank.studNo}</p>
+		<p class="text-gray-500">{rank.team}</p>
+	</td>
+	<td class=""><b>{rank.k}</b> {rank.score}</td>
+	{#await handleUserInfo then problemWithSubmit}
+		<ScoreCell tries={rank.tries} {problemWithSubmit} {handleModal} />
+	{/await}
+</tr>

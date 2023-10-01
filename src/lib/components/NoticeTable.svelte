@@ -1,6 +1,15 @@
 <script lang="ts">
-	import { customFetch } from '$lib/customFetch';
 	import type { IFetchResponse, INotice } from '$lib/types';
+	import { customFetch } from '$lib/customFetch';
+	import { Modal } from 'flowbite-svelte';
+
+	let currentNotice: INotice = { id: 0, title: '' };
+	let modalOpen = false;
+
+	const handleModal = (notice: INotice) => {
+		currentNotice = notice;
+		modalOpen = true;
+	};
 
 	$: handleNotice = customFetch<IFetchResponse<INotice[]>>({
 		method: 'POST',
@@ -20,10 +29,18 @@
 		});
 </script>
 
-<div>
+<Modal title={currentNotice.title} bind:open={modalOpen} autoclose outsideclose>
+	<div class="p-4">
+		<p class="text-gray-700 text-base">
+			{currentNotice.id}
+		</p>
+	</div>
+</Modal>
+
+<div class="w-2/6">
 	<h3 class="text-center text-lg bg-blue-300 font-bold border-y-2 border-black mb-4">공지사항</h3>
 	<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-		<table class="w-full text-lg text-left">
+		<table class="w-full text-lg text-center">
 			<thead class="text-base text-gray-700 uppercase bg-gray-50">
 				<tr>
 					<th scope="col" class="px-6 py-3">no</th>
@@ -34,7 +51,7 @@
 				{#await handleNotice then noticeList}
 					{#if noticeList}
 						{#each noticeList as notice}
-							<tr class="bg-white border-b">
+							<tr class="bg-white border-b" on:click={() => handleModal(notice)}>
 								<th scope="row" class="px-6 py-4 whitespace-nowrap font-medium">
 									{notice.id}
 								</th>
