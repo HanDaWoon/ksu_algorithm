@@ -9,7 +9,7 @@
 		<th scope="col" class=" w-48 px-6 py-3">학번</th>
 		<th scope="col" class=" w-36 px-6 py-3">점수</th>
 		{#each problems as problem}
-			<th scope="col" class="px-6 py-3">
+			<th scope="col" class="px-6 py-3 w-32">
 				<a href={`problem/${problem.no}`}>{problem.no}</a>
 			</th>
 		{/each}

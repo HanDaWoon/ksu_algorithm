@@ -1,41 +1,39 @@
 <script lang="ts">
-	import type { IFetchResponse, INotice } from '$lib/types';
+	export let handleModal: (data: IModal) => void;
+
+	import type { IFetchResponse, IModal, INotice } from '$lib/types';
 	import { customFetch } from '$lib/customFetch';
-	import { Modal } from 'flowbite-svelte';
+	import { onMount, onDestroy } from 'svelte';
 
-	let currentNotice: INotice = { id: 0, title: '' };
-	let modalOpen = false;
+	let noticeList: INotice[] = [];
 
-	const handleModal = (notice: INotice) => {
-		currentNotice = notice;
-		modalOpen = true;
+	const refreshNoticeData = async () => {
+		try {
+			const response = await customFetch<IFetchResponse<INotice[]>>({
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					query: `{ notices { id title } }`
+				})
+			});
+
+			if (response.errors) {
+				throw new Error(response.errors[0].message);
+			}
+
+			noticeList = response.data.notices;
+		} catch (e) {
+			alert(e);
+		}
 	};
 
-	$: handleNotice = customFetch<IFetchResponse<INotice[]>>({
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			query: `{ notices { id title } }`
-		})
-	})
-		.then((res: IFetchResponse<INotice[]>) => {
-			if (res.errors) throw new Error(res.errors[0].message);
-			return res.data.notices;
-		})
-		.catch((e: Error) => {
-			alert(e);
-		});
-</script>
+	refreshNoticeData();
+	const refreshIntervalId = setInterval(refreshNoticeData, 5000);
 
-<Modal title={currentNotice.title} bind:open={modalOpen} autoclose outsideclose>
-	<div class="p-4">
-		<p class="text-gray-700 text-base">
-			{currentNotice.id}
-		</p>
-	</div>
-</Modal>
+	onDestroy(() => clearInterval(refreshIntervalId));
+</script>
 
 <div class="w-2/6">
 	<h3 class="text-center text-lg bg-blue-300 font-bold border-y-2 border-black mb-4">공지사항</h3>
@@ -48,20 +46,26 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#await handleNotice then noticeList}
-					{#if noticeList}
-						{#each noticeList as notice}
-							<tr class="bg-white border-b" on:click={() => handleModal(notice)}>
-								<th scope="row" class="px-6 py-4 whitespace-nowrap font-medium">
-									{notice.id}
-								</th>
-								<td class="px-6 py-4 whitespace-nowrap font-medium">
-									{notice.title}
-								</td>
-							</tr>
-						{/each}
-					{/if}
-				{/await}
+				{#if noticeList && noticeList.length > 0}
+					{#each noticeList as notice}
+						<tr
+							class="bg-white border-b"
+							on:click={() =>
+								handleModal({
+									title: notice.id.toString(),
+									body: notice.title,
+									etc: notice
+								})}
+						>
+							<th scope="row" class="px-6 py-4 whitespace-nowrap font-medium">
+								{notice.id}
+							</th>
+							<td class="px-6 py-4 whitespace-nowrap font-medium">
+								{notice.title}
+							</td>
+						</tr>
+					{/each}
+				{/if}
 			</tbody>
 		</table>
 	</div>

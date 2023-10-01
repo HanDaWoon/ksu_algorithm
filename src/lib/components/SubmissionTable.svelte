@@ -4,25 +4,39 @@
 	import type { IFetchResponse, IModal, ISubmit } from '$lib/types';
 	import { customFetch } from '$lib/customFetch';
 	import { getTimeDifferenceString } from '$lib/utils';
+	import { onDestroy } from 'svelte';
 
-	$: handleSubmissions = customFetch<IFetchResponse<ISubmit[]>>({
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			query: `{ submit { id type problemNo lang state extra result submit_at } }`
-		})
-	})
-		.then((res: IFetchResponse<ISubmit[]>) => {
-			if (res.errors) throw new Error(res.errors[0].message);
-			return res.data.submit
+	let submitList: ISubmit[];
+
+	const refreshSubmissions = async () => {
+		try {
+			const response = await customFetch<IFetchResponse<ISubmit[]>>({
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					query: `{ submit { id type problemNo lang state extra result submit_at } }`
+				})
+			});
+
+			if (response.errors) {
+				throw new Error(response.errors[0].message);
+			}
+
+			submitList = response.data.submit
 				.filter((submit: ISubmit) => submit.type === '1')
 				.sort((a: ISubmit, b: ISubmit) => b.id - a.id);
-		})
-		.catch((e: Error) => {
-			alert(e);
-		});
+		} catch (e) {
+			console.log(e);
+			return e;
+		}
+	};
+
+	refreshSubmissions();
+	const refreshIntervalId = setInterval(refreshSubmissions, 5000);
+
+	onDestroy(() => clearInterval(refreshIntervalId));
 </script>
 
 <div class="w-7/12">
@@ -38,44 +52,42 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#await handleSubmissions then submitList}
-					{#if submitList}
-						{#each submitList as submit}
-							<tr
-								class="bg-white border-b"
-								on:click={() =>
-									handleModal({
-										title: submit.problemNo.toString(),
-										body: submit.extra,
-										etc: submit
-									})}
-							>
-								<th class=" whitespace-nowrap font-medium">
-									{getTimeDifferenceString(new Date(parseInt(submit.submit_at)))}
-								</th>
-								<td class="px-6 py-4 whitespace-nowrap font-medium">
-									{submit.problemNo}
-								</td>
-								<td class="px-6 py-4">
-									{submit.lang}
-								</td>
-								<td class="px-6 py-4">
-									{#if submit.state == '0'}
-										<div class="text-gray-500">채점 대기</div>
-									{:else if submit.state == '1'}
-										<div>채점 중...</div>
-									{:else if submit.state == '2'}
-										{#if submit.result == '0'}
-											<div class="text-green-400">정답</div>
-										{:else if submit.result == '1'}
-											<div class="text-red-orange-500">{submit.extra}</div>
-										{/if}
+				{#if submitList}
+					{#each submitList as submit}
+						<tr
+							class="bg-white border-b"
+							on:click={() =>
+								handleModal({
+									title: submit.problemNo.toString(),
+									body: submit.extra,
+									etc: submit
+								})}
+						>
+							<th class=" whitespace-nowrap font-medium">
+								{getTimeDifferenceString(new Date(parseInt(submit.submit_at)))}
+							</th>
+							<td class="px-6 py-4 whitespace-nowrap font-medium">
+								{submit.problemNo}
+							</td>
+							<td class="px-6 py-4">
+								{submit.lang}
+							</td>
+							<td class="px-6 py-4">
+								{#if submit.state == '0'}
+									<div class="text-gray-500">채점 대기</div>
+								{:else if submit.state == '1'}
+									<div>채점 중...</div>
+								{:else if submit.state == '2'}
+									{#if submit.result == '0'}
+										<div class="text-green-400">정답</div>
+									{:else if submit.result == '1'}
+										<div class="text-red-orange-500">{submit.extra}</div>
 									{/if}
-								</td>
-							</tr>
-						{/each}
-					{/if}
-				{/await}
+								{/if}
+							</td>
+						</tr>
+					{/each}
+				{/if}
 			</tbody>
 		</table>
 	</div>
