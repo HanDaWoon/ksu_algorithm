@@ -56,6 +56,7 @@ interface IProblemWithSubmit {
 	state: string;
 	type: string;
 	extra: string;
+	code: string;
 }
 
 interface ISubmit {

@@ -4,6 +4,7 @@
 	import { Button, Select } from 'flowbite-svelte';
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Monaco from 'svelte-monaco';
+	import { customFetch } from '$lib/customFetch';
 
 	let languages = [
 		{ value: 'c', name: 'C(99)' },
@@ -13,16 +14,43 @@
 		{ value: 'kotlin', name: 'Kotlin' },
 		{ value: 'rust', name: 'Rust' },
 		{ value: 'go', name: 'Go' },
-		{ value: 'javaScript', name: 'JavaScript' }
+		{ value: 'javascript', name: 'JavaScript' }
 	];
-	let selected_language = languages[0].value;
+	const lang = sessionStorage.getItem('lang') ?? $page.data.problemData.lang;
+	let selected_language = lang ?? languages[0].value;
 	let selected_theme: string = 'light';
-	let value = '';
+	let value = $page.data.problemData.code ?? '';
+
+	const handleSubmit = async (submitType: string) => {
+		sessionStorage.setItem('lang', selected_language);
+		await customFetch({
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				query: `
+					mutation { updateSubmit(
+							stud_id: ${$page.data.signInUser.studId}
+							type: ${submitType}
+							problemNo: ${$page.data.problemData.no}
+							lang: ${selected_language}
+							code: ${value}
+						) {
+							id
+						}
+					}
+				`
+			})
+		}).then((res) => {
+			console.log(res);
+		});
+	};
 </script>
 
 <main class="h-screen">
-	<header class="flex flex-row justify-between px-4 py-1 gap-4 items-center">
-		<div class="text-xl font-semibold min-w-fit">{$page.data.problem.title}</div>
+	<header class="flex flex-row justify-between px-4 py-1 gap-4 items-center bg-slate-200">
+		<div class="text-xl font-semibold min-w-fit">{$page.data.problemData.title}</div>
 		<div class="flex flex-row gap-4">
 			{#if selected_theme === 'light'}
 				<Button on:click={() => (selected_theme = 'dark')} color={'dark'}>Dark</Button>
@@ -37,17 +65,17 @@
 			/>
 		</div>
 	</header>
-	<Splitpanes class="bg-white">
+	<Splitpanes style="background-color: white;">
 		<Pane minSize={20} maxSize={50}>
 			<article
-				class="prose lg:prose-xl p-2 h-full"
+				class="prose lg:prose-xl p-2 h-full bg-white"
 				contenteditable="false"
-				bind:innerHTML={$page.data.problem.body}
+				bind:innerHTML={$page.data.problemData.body}
 			/>
 		</Pane>
 		<Pane>
-			<Splitpanes horizontal={true}>
-				<Pane size={60} minSize={30}>
+			<Splitpanes horizontal={true} style="background-color: white;">
+				<Pane size={65} minSize={40}>
 					<Monaco
 						options={{
 							fontSize: 18,
@@ -55,13 +83,20 @@
 							language: selected_language.toLowerCase()
 						}}
 						theme={selected_theme === 'dark' ? 'vs-dark' : 'vs'}
-						on:ready={(event) => console.log(event.detail)}
 						bind:value
 					/>
 				</Pane>
 				<Pane minSize={20}>
-					<RunOut run_id={1} />
-					출력값
+					<RunOut />
+					<Button
+						color="alternative"
+						class="absolute bottom-1 right-20"
+						on:click={() => handleSubmit('0')}>실행</Button
+					>
+					<Button
+						class="absolute bottom-1 right-2 bg-dodger-blue-600"
+						on:click={() => handleSubmit('1')}>제출</Button
+					>
 				</Pane>
 			</Splitpanes>
 		</Pane>
