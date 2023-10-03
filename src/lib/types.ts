@@ -46,6 +46,7 @@ interface IProblem {
 
 interface IProblemWithSubmit {
 	no: number;
+	id: number;
 	title?: string;
 	lang: string;
 	result: string;
@@ -81,6 +82,26 @@ interface IScoreboard {
 	tries: ITry;
 }
 
+interface IProblemJudgeResult {
+	result: IProblemWithSubmit;
+	judge: {
+		testcase_id: number;
+		judge_detail?: IJudgeResult[];
+	}[];
+}
+interface IJudgeResult {
+	id: number;
+	submit_id: number;
+	testcase_id: number;
+	output: string;
+	runtime: number;
+	result: number;
+	compile_log: string;
+	memory: number;
+	judge_at: string;
+	judge_server_id: string;
+}
+
 interface IQuery {
 	login(studNo: string, password: string): ILoginResponse;
 	student(studNo: string): IStudent;
@@ -95,12 +116,13 @@ interface IQuery {
 	info: IStudent;
 	rank: IStudent[];
 	scoreboard: IScoreboard[];
+	judges(submitId: number): IProblemJudgeResult;
 }
 
 interface IModal {
 	title: string;
 	body: string;
-	etc?: {};
+	etc?: IProblemWithSubmit | ISubmit | undefined;
 }
 
 export type {
@@ -114,5 +136,7 @@ export type {
 	IScoreboard,
 	ITry,
 	IQuery,
-	IModal
+	IModal,
+	IProblemJudgeResult,
+	IJudgeResult
 };

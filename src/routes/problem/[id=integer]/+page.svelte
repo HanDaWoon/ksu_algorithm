@@ -68,7 +68,7 @@
 	<Splitpanes style="background-color: white;">
 		<Pane minSize={20} maxSize={50}>
 			<article
-				class="prose lg:prose-xl p-2 h-full bg-white"
+				class="prose lg:prose-xl p-2 h-full bg-white overflow-auto"
 				contenteditable="false"
 				bind:innerHTML={$page.data.problemData.body}
 			/>

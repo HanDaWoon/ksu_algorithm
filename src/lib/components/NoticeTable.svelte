@@ -53,8 +53,7 @@
 							on:click={() =>
 								handleModal({
 									title: notice.id.toString(),
-									body: notice.title,
-									etc: notice
+									body: notice.title
 								})}
 						>
 							<th scope="row" class="px-6 py-4 whitespace-nowrap font-medium">

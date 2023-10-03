@@ -1,11 +1,11 @@
 <script lang="ts">
+	export let rank: IStudent;
+	export let handleModal: (data: IModal) => void | undefined = undefined;
+
 	import type { IStudent, IFetchResponse, IProblemWithSubmit, IModal } from '$lib/types';
 	import { customFetch } from '$lib/customFetch';
 	import ScoreCell from './ScoreCell.svelte';
 	import { onMount, onDestroy } from 'svelte';
-
-	export let rank: IStudent;
-	export let handleModal: (data: IModal) => void | undefined = undefined;
 
 	let problemWithSubmit: IProblemWithSubmit[] = [];
 
@@ -17,7 +17,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no result title score state type extra} }`
+					query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no id result title score state type extra} }`
 				})
 			});
 
@@ -25,9 +25,7 @@
 				throw new Error(response.errors[0].message);
 			}
 
-			problemWithSubmit = response.data.problemsWithSubmitByStudId.filter(
-				(ps: IProblemWithSubmit) => ps.type === '1'
-			);
+			problemWithSubmit = response.data.problemsWithSubmitByStudId;
 		} catch (e) {
 			console.log(e);
 			return e;
@@ -49,8 +47,6 @@
 	</td>
 	<td class=""><b>{rank.k}</b> {rank.score}</td>
 	{#if problemWithSubmit}
-		{#if problemWithSubmit.length > 0}
-			<ScoreCell tries={rank.tries} {problemWithSubmit} {handleModal} />
-		{/if}
+		<ScoreCell tries={rank.tries} {problemWithSubmit} {handleModal} />
 	{/if}
 </tr>

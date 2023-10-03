@@ -1,13 +1,33 @@
 <script lang="ts">
-	import type { IStudent, IFetchResponse, IProblem, ISubmit } from '$lib/types';
+	import type {
+		IStudent,
+		IFetchResponse,
+		IProblem,
+		ISubmit,
+		IModal,
+		IProblemWithSubmit
+	} from '$lib/types';
 	import { customFetch } from '$lib/customFetch';
 	import UserInfo from '$lib/components/UserInfo.svelte';
 	import Ranking from '$lib/components/ProblemHead.svelte';
 	import { onDestroy } from 'svelte';
+	import { Li, List, Modal } from 'flowbite-svelte';
+	import { handleJudges } from '$lib/utils';
 
 	let rank: IStudent[] = [];
 	let problems: IProblem[] = [];
 	let submits: ISubmit[] = [];
+	let modalOpen = false;
+	let title: string = '';
+	let body: string = '';
+	let etc: IProblemWithSubmit | ISubmit | undefined;
+
+	const handleModal = (data: IModal) => {
+		title = data.title;
+		body = data.body;
+		etc = data.etc;
+		modalOpen = true;
+	};
 
 	const refreshScoreBoard = async () => {
 		try {
@@ -63,9 +83,55 @@
 			<Ranking {problems} />
 			<tbody class="relative overflow-x-auto py-4">
 				{#each rank as rank}
-					<UserInfo {rank} />
+					<UserInfo {rank} {handleModal} />
 				{/each}
 			</tbody>
 		</table>
 	{/if}
 </div>
+
+<Modal title={'제출번호: ' + title} bind:open={modalOpen} size={'lg'} autoclose outsideclose>
+	<div class="text-xl text-black">
+		{#if etc}
+			{#await handleJudges(etc.id) then judges}
+				<p>문제 : {judges.result.no}번 {judges.result.title}</p>
+				<p>제출 언어 : {judges.result.lang}</p>
+				<p>실행시간 / 메모리 : {judges.result.runtime} ms / {judges.result.memory} B</p>
+				<List tag="ul">
+					{#each judges.judge as j}
+						<Li>
+							테스트 케이스 {j.testcase_id}
+							{#if j.judge_detail}
+								<List tag="ul" class="pl-5 space-y-1">
+									{#each j.judge_detail as jd}
+										<Li>
+											Judge {jd.id}
+											<List tag="ul" class="pl-5 space-y-1">
+												<Li>
+													실행시간: {jd.runtime} ms
+												</Li>
+												<Li>
+													결과:
+													<div
+														class="inline-block"
+														class:text-green-500={jd.result === 0}
+														class:text-red-500={jd.result === 1}
+													>
+														{jd.result === 0 ? '성공' : '실패'}
+													</div>
+												</Li>
+												<Li>
+													출력: {jd.output}
+												</Li>
+											</List>
+										</Li>
+									{/each}
+								</List>
+							{/if}
+						</Li>
+					{/each}
+				</List>
+			{/await}
+		{/if}
+	</div>
+</Modal>
