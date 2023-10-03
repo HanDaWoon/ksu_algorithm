@@ -162,7 +162,7 @@
 	</div>
 </div>
 
-<Modal title={'제출번호: ' + title} bind:open={modalOpen} size={'lg'} autoclose outsideclose>
+<Modal title={'제출번호: ' + title} bind:open={modalOpen} size={'xl'} autoclose outsideclose>
 	<div class="text-xl text-black">
 		{#if etc}
 			{#await handleJudges(etc.id) then judges}

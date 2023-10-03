@@ -1,5 +1,6 @@
 import { customFetch } from './customFetch';
 import type { IFetchResponse, IModal, IProblemJudgeResult } from './types';
+import { user } from './user';
 
 const END_TIME = new Date(2023, 9, 6, 19, 30);
 
@@ -62,4 +63,14 @@ export const handleJudges = async (submitId: number) => {
 		console.log(e);
 	}
 	return judges;
+};
+
+export const signOut = async () => {
+	window.sessionStorage.removeItem('user.studNo');
+	window.sessionStorage.removeItem('user.name');
+	window.sessionStorage.removeItem('user.grade');
+	window.sessionStorage.removeItem('user.team');
+
+	// cookie 삭제?
+	user.set(null);
 };

@@ -1,9 +1,9 @@
 <script lang="ts">
-	export let handleModal: (data: IModal) => void;
+	// export let handleModal: (data: IModal) => void;
 
 	import type { IFetchResponse, IModal, INotice } from '$lib/types';
 	import { customFetch } from '$lib/customFetch';
-	import { onMount, onDestroy } from 'svelte';
+	import { onDestroy } from 'svelte';
 
 	let noticeList: INotice[] = [];
 
@@ -48,14 +48,7 @@
 			<tbody>
 				{#if noticeList && noticeList.length > 0}
 					{#each noticeList as notice}
-						<tr
-							class="bg-white border-b"
-							on:click={() =>
-								handleModal({
-									title: notice.id.toString(),
-									body: notice.title
-								})}
-						>
+						<tr class="bg-white border-b">
 							<th scope="row" class="px-6 py-4 whitespace-nowrap font-medium">
 								{notice.id}
 							</th>

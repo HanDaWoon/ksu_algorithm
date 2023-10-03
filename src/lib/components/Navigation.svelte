@@ -2,6 +2,7 @@
 	import { get } from 'svelte/store';
 	import { user } from '$lib/user';
 	import CurrentStatus from './CurrentStatus.svelte';
+	import { signOut } from '$lib/utils';
 	let isLoading = false;
 	$: navigation = [
 		{
@@ -19,13 +20,7 @@
 	];
 	const handleSignOut = async () => {
 		isLoading = true;
-		window.sessionStorage.removeItem('user.studNo');
-		window.sessionStorage.removeItem('user.name');
-		window.sessionStorage.removeItem('user.grade');
-		window.sessionStorage.removeItem('user.team');
-
-		// cookie 삭제?
-		user.set(null);
+		signOut();
 		return (isLoading = false);
 	};
 </script>

@@ -79,7 +79,7 @@
 				} else if (state === 1) return new Error('조기 퇴실 유저');
 			})
 			.catch((e: Error) => {
-				return new Error('유저 확인 실패');
+				return new Error('유저 확인 실패' + e.message);
 			});
 </script>
 

@@ -1,6 +1,10 @@
 <script lang="ts">
+	export let submitId: number;
+
 	import { customFetch } from '$lib/customFetch';
 	import { onDestroy } from 'svelte';
+
+	let outLine: [string];
 
 	// const handleRunOut = () => {
 	// 	customFetch({
@@ -12,7 +16,7 @@
 	// 			query: ``
 	// 		})
 	// 	}).then((res) => {
-	// 		console.log(res);
+	//
 	// 	});
 	// };
 
@@ -21,3 +25,5 @@
 
 	// onDestroy(() => clearInterval(refreshIntervalId));
 </script>
+
+<div class="p-2" />

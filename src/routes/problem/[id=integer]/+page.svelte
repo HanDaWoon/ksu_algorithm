@@ -20,6 +20,7 @@
 	let selected_language = lang ?? languages[0].value;
 	let selected_theme: string = 'light';
 	let value = $page.data.problemData.code ?? '';
+	let submitId: number;
 
 	const handleSubmit = async (submitType: string) => {
 		sessionStorage.setItem('lang', selected_language);
@@ -30,7 +31,7 @@
 			},
 			body: JSON.stringify({
 				query: `
-					mutation { updateSubmit(
+					mutation { insertSubmit(
 							stud_id: ${$page.data.signInUser.studId}
 							type: ${submitType}
 							problemNo: ${$page.data.problemData.no}
@@ -44,6 +45,7 @@
 			})
 		}).then((res) => {
 			console.log(res);
+			// submitId = res.data.updateSubmit.id;
 		});
 	};
 </script>
@@ -87,7 +89,7 @@
 					/>
 				</Pane>
 				<Pane minSize={20}>
-					<RunOut />
+					<RunOut {submitId} />
 					<Button
 						color="alternative"
 						class="absolute bottom-1 right-20"
