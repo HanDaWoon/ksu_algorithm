@@ -18,7 +18,7 @@
 	import { onDestroy } from 'svelte';
 	import { handleJudges } from '$lib/utils';
 
-	let modalOpen = true;
+	let modalOpen = false;
 	let title: string = '';
 	let body: string = '';
 	let etc: IProblemWithSubmit | ISubmit | undefined;
