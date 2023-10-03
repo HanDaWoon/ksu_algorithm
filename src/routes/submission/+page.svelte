@@ -186,14 +186,16 @@
 													결과:
 													<div
 														class="inline-block"
-														class:text-green-500={jd.result === 0}
+														class:text-green-600={jd.result === 0}
 														class:text-red-500={jd.result === 1}
 													>
 														{jd.result === 0 ? '성공' : '실패'}
 													</div>
 												</Li>
 												<Li>
-													출력: {jd.output}
+													출력: <div class="whitespace-pre pl-5 space-y-1">
+														{jd.output || '없음'}
+													</div>
 												</Li>
 											</List>
 										</Li>
