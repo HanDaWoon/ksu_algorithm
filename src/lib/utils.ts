@@ -2,21 +2,28 @@ import { customFetch } from './customFetch';
 import type { IFetchResponse, IModal, IProblemJudgeResult } from './types';
 import { user } from './user';
 
-const END_TIME = new Date(2023, 9, 6, 19, 30);
+export const convertTimestampToKoreanTime = (timestamp: number) => {
+	const koreanTimezoneOffset = 9 * 60; // Korea Standard Time (KST) offset in minutes
+	const timestampInMilliseconds = timestamp * 1000; // Convert seconds to milliseconds
+	const koreanTimestamp = new Date(timestampInMilliseconds + koreanTimezoneOffset * 60 * 1000);
 
-export const calculateRemainingTime = (): string => {
-	const currentTime = new Date();
-	const remainingTimeInMilliseconds = END_TIME.getTime() - currentTime.getTime();
+	// Formatting the date and time in the desired format (e.g., "2023-10-04 14:30:00")
+	const formattedTime = koreanTimestamp.toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
-	if (remainingTimeInMilliseconds < 0) {
+	return formattedTime;
+};
+
+export const calculateRemainingTime = (timestamp: number): string => {
+	const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+	const remainingTimeInSeconds = timestamp - currentTime;
+
+	if (remainingTimeInSeconds < 0) {
 		return '이미 지난 시간입니다';
 	}
 
-	const remainingHours = Math.floor(Math.floor(remainingTimeInMilliseconds / (1000 * 60 * 60)));
-	const remainingMinutes = Math.floor(
-		(remainingTimeInMilliseconds % (1000 * 60 * 60)) / (1000 * 60)
-	);
-	const remainingSeconds = Math.floor((remainingTimeInMilliseconds % (1000 * 60)) / 1000);
+	const remainingHours = Math.floor(remainingTimeInSeconds / 3600);
+	const remainingMinutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
+	const remainingSeconds = remainingTimeInSeconds % 60;
 
 	return `${remainingHours}:${remainingMinutes}:${remainingSeconds}`;
 };
@@ -74,3 +81,11 @@ export const signOut = async () => {
 	// cookie 삭제?
 	user.set(null);
 };
+
+export function escapeSpecialChars(str: string) {
+	return str.replace(/["]/g, '\\$&');
+}
+
+export function unescapeSpecialChars(str: string) {
+	return str.replace(/\\(["])/g, '$1');
+}

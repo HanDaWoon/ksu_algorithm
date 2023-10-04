@@ -51,7 +51,6 @@ interface IProblemWithSubmit {
 	lang: string;
 	result: string;
 	runtime: number;
-	memory: number;
 	submit_at: string;
 	score: number;
 	state: string;
@@ -73,7 +72,6 @@ interface ISubmit {
 	code_size: number;
 	submit_at: string;
 	runtime: number; // millisecond 단위
-	memory: number; // byte 단위 (1000 = 1KiB)
 	score: number;
 }
 
@@ -125,6 +123,11 @@ interface IModal {
 	etc?: IProblemWithSubmit | ISubmit | undefined;
 }
 
+interface IConfig {
+	START_AT: number;
+	END_AT: number;
+}
+
 export type {
 	IFetchResponse,
 	IStudent,
@@ -138,5 +141,6 @@ export type {
 	IQuery,
 	IModal,
 	IProblemJudgeResult,
-	IJudgeResult
+	IJudgeResult,
+	IConfig
 };

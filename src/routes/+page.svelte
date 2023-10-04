@@ -74,7 +74,7 @@
 			{/if}
 		</table>
 	</div>
-	<div class="w-full flex flex-row justify-between px-24">
+	<div class="w-full flex flex-row justify-between px-24 pb-6">
 		<SubmissionTable {handleModal} />
 		<ClarificationTable />
 	</div>
@@ -86,7 +86,7 @@
 			{#await handleJudges(etc.id) then judges}
 				<p>문제 : {judges.result.no}번 {judges.result.title}</p>
 				<p>제출 언어 : {judges.result.lang}</p>
-				<p>실행시간 / 메모리 : {judges.result.runtime} ms / {judges.result.memory} B</p>
+				<p>실행시간 : {judges.result.runtime ?? '...'} ms</p>
 				<List tag="ul">
 					{#each judges.judge as j}
 						<Li>

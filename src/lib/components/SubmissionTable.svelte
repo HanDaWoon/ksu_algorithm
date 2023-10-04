@@ -58,21 +58,21 @@
 							class="bg-white border-b"
 							on:click={() =>
 								handleModal({
-									title: submit.problemNo.toString(),
+									title: submit.id.toString(),
 									body: submit.extra,
 									etc: submit
 								})}
 						>
-							<th class=" whitespace-nowrap font-medium">
+							<th class="whitespace-nowrap font-medium">
 								{getTimeDifferenceString(new Date(parseInt(submit.submit_at)))}
 							</th>
-							<td class="px-6 py-4 whitespace-nowrap font-medium">
+							<td class="p-2 whitespace-nowrap font-medium">
 								{submit.problemNo}
 							</td>
-							<td class="px-6 py-4">
+							<td class="p-2">
 								{submit.lang}
 							</td>
-							<td class="px-6 py-4">
+							<td class="p-2">
 								{#if submit.state == '0'}
 									<div class="text-gray-500">채점 대기</div>
 								{:else if submit.state == '1'}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { customFetch } from '$lib/customFetch';
-	import type { IFetchResponse, IStudent } from '$lib/types';
+	import type { IConfig, IFetchResponse, IStudent } from '$lib/types';
 	import { calculateRemainingTime } from '$lib/utils';
 	import { get } from 'svelte/store';
 	import { user } from '$lib/user';
@@ -9,22 +9,19 @@
 	let remainingTime: string;
 	let userId: number;
 	let stat: IStudent;
-
-	const updateRemainingTimeInterval = setInterval(() => {
-		remainingTime = calculateRemainingTime();
-	}, 1000);
+	let config: IConfig;
 
 	const refreshStudentStat = async () => {
 		userId = parseInt(get(user).studId);
 
 		try {
-			const response = await customFetch<IFetchResponse<IStudent[]>>({
+			const response = await customFetch<IFetchResponse<any>>({
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					query: `{ rank { id rank studNo k d a } }`
+					query: `{ rank { id rank studNo k d a } config { START_AT END_AT } }`
 				})
 			});
 
@@ -33,6 +30,7 @@
 			}
 
 			stat = response.data.rank.find((rank: IStudent) => rank.id === userId);
+			config = response.data.config;
 		} catch (e) {
 			console.log(e);
 			alert(e);
@@ -40,7 +38,11 @@
 	};
 
 	refreshStudentStat();
+
 	const refreshIntervalId = setInterval(refreshStudentStat, 5000);
+	const updateRemainingTimeInterval = setInterval(() => {
+		remainingTime = calculateRemainingTime(config.END_AT);
+	}, 1000);
 
 	onDestroy(() => {
 		clearInterval(refreshIntervalId);

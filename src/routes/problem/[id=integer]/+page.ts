@@ -4,6 +4,7 @@ import { get } from 'svelte/store';
 import { user } from '$lib/user';
 import type { IFetchResponse, ISubmit } from '$lib/types';
 import type { PageLoad } from './$types';
+import { unescapeSpecialChars } from '$lib/utils';
 
 export const load: PageLoad = async ({ params }) => {
 	const signInUser = get(user);
@@ -19,13 +20,15 @@ export const load: PageLoad = async ({ params }) => {
 	}).then((res: IFetchResponse<any>) => {
 		if (res.errors) throw new Error(res.errors[0].message);
 
-		const { code, lang, result } = res.data.submits
+		let { code, lang, result } = res.data.submits
 			.sort((submitA: ISubmit, submitB: ISubmit) => submitB.id - submitA.id)
 			.find((submit: ISubmit) => submit.problemNo === parseInt(id)) || {
 			code: '',
 			lang: '',
 			result: ''
 		};
+
+		code = unescapeSpecialChars(code);
 
 		return {
 			...res.data.problem,

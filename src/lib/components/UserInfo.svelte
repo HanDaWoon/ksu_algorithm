@@ -17,7 +17,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no result state } }`
+					query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no id result state } }`
 				})
 			});
 

@@ -5,7 +5,7 @@
 	import Monaco from 'svelte-monaco';
 	import { customFetch } from '$lib/customFetch';
 	import type { IFetchResponse, IProblemJudgeResult, ISubmit } from '$lib/types';
-	import { handleJudges } from '$lib/utils';
+	import { escapeSpecialChars, handleJudges } from '$lib/utils';
 	import { onDestroy } from 'svelte';
 
 	let languages = [
@@ -61,12 +61,11 @@
 	const handleRunOut = async () => {
 		judges = await handleJudges(submitId);
 		// null이 없으면 중단
-		judges.judge.find((j) => j.judge_detail !== null) ?? clearInterval(refreshIntervalId);
+		if (judges.judge.find((j) => j.judge_detail !== null)) {
+			clearInterval(refreshIntervalId);
+			return;
+		}
 	};
-
-	function escapeSpecialChars(str: string) {
-		return str.replace(/['"]/g, '\\$&');
-	}
 
 	onDestroy(() => clearInterval(refreshIntervalId));
 </script>

@@ -10,14 +10,14 @@
 		on:click={() => {
 			handleModal &&
 				handleModal({
-					title: ps.no.toString(),
+					title: ps.id.toString(),
 					body: ps.extra,
 					etc: ps
 				});
 		}}
 	>
 		{#if tries}
-			{#if tries[ps.no]}
+			{#if tries[ps.no] && tries[ps.no].try_cnt > 0}
 				<div
 					class="text-black"
 					class:bg-cornflower-blue-500={ps.state === '0' || ps.state === '1'}
@@ -25,7 +25,7 @@
 					class:bg-green-400={ps.result === '0'}
 				>
 					<div class="text-base font-medium">
-						{tries[ps.no].score ?? 0}
+						{tries[ps.no].score ?? ''}
 					</div>
 					<div>
 						{tries[ps.no].try_cnt}
