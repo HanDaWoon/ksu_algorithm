@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import RunOut from '$lib/components/RunOut.svelte';
-	import { Button, Select } from 'flowbite-svelte';
+	import { Button, Li, List, Select } from 'flowbite-svelte';
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Monaco from 'svelte-monaco';
 	import { customFetch } from '$lib/customFetch';
-	import type { IFetchResponse, ISubmit } from '$lib/types';
+	import type { IFetchResponse, IProblemJudgeResult, ISubmit } from '$lib/types';
+	import { handleJudges } from '$lib/utils';
+	import { onDestroy } from 'svelte';
 
 	let languages = [
 		{ value: 'c', name: 'C(99)' },
@@ -24,6 +25,9 @@
 	let selected_theme: string = 'light';
 	let value = $page.data.problemData.code ?? '';
 	let submitId: number;
+	let judges: IProblemJudgeResult;
+
+	let refreshIntervalId: NodeJS.Timeout;
 
 	const handleSubmit = async (submitType: string) => {
 		sessionStorage.setItem('lang', selected_language);
@@ -33,24 +37,38 @@
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				query: `
-					mutation { insertSubmit(
-							stud_id: ${$page.data.signInUser.studId}
-							type: ${submitType}
-							problemNo: ${$page.data.problemData.no}
-							lang: ${selected_language}
-							code: ${value}
-						) {
-							id
-						}
-					}
-				`
+				query: `mutation {
+					insertSubmit(
+						stud_id: ${$page.data.signInUser.studId},
+						type: "${submitType}",
+						problemNo: ${$page.data.problemData.no},
+						lang: "${selected_language}",
+						code: "${escapeSpecialChars(value)}"
+					) { id stud_id problemNo } 
+				}`
 			})
-		}).then((res: IFetchResponse<ISubmit>) => {
-			console.log(res);
-			submitId = res.data.submit.id;
-		});
+		})
+			.then((res: IFetchResponse<ISubmit>) => {
+				if (res.errors) throw new Error(res.errors[0].message);
+				submitId = res.data.insertSubmit.id;
+				refreshIntervalId = setInterval(handleRunOut, 1000);
+			})
+			.catch((err: Error) => {
+				console.error(err);
+			});
 	};
+
+	const handleRunOut = async () => {
+		judges = await handleJudges(submitId);
+		// null이 없으면 중단
+		judges.judge.find((j) => j.judge_detail !== null) ?? clearInterval(refreshIntervalId);
+	};
+
+	function escapeSpecialChars(str: string) {
+		return str.replace(/['"]/g, '\\$&');
+	}
+
+	onDestroy(() => clearInterval(refreshIntervalId));
 </script>
 
 <div class="h-code">
@@ -96,7 +114,46 @@
 					/>
 				</Pane>
 				<Pane>
-					<RunOut {submitId} />
+					<div class="h-full overflow-auto bg-mystic-100">
+						{#if judges}
+							<List tag="ul">
+								{#each judges.judge as j}
+									<Li>
+										테스트 케이스 {j.testcase_id}
+										{#if j.judge_detail}
+											<List tag="ul" class="pl-5 space-y-1">
+												{#each j.judge_detail as jd}
+													<Li>
+														Judge {jd.id}
+														<List tag="ul" class="pl-5 space-y-1">
+															<Li>
+																실행시간: {jd.runtime} ms
+															</Li>
+															<Li>
+																결과:
+																<div
+																	class="inline-block"
+																	class:text-green-600={jd.result === 0}
+																	class:text-red-500={jd.result === 1}
+																>
+																	{jd.result === 0 ? '성공' : '실패'}
+																</div>
+															</Li>
+															<Li>
+																출력: <div class="whitespace-pre pl-5 space-y-1">
+																	{jd.output || '없음'}
+																</div>
+															</Li>
+														</List>
+													</Li>
+												{/each}
+											</List>
+										{/if}
+									</Li>
+								{/each}
+							</List>
+						{/if}
+					</div>
 					<div class="fixed bottom-1 right-1">
 						<Button
 							class="font-bold"
