@@ -88,14 +88,16 @@
 				<p>제출 언어 : {judges.result.lang}</p>
 				<p>실행시간 : {judges.result.runtime ?? '...'} ms</p>
 				<List tag="ul">
-					{#each judges.judge as j}
+					{#each judges.judge as j, idx1}
 						<Li>
-							테스트 케이스 {j.testcase_id}
+							테스트 케이스 {idx1 + 1}
+							<div class="inline text-gray-400">({j.testcase_id})</div>
 							{#if j.judge_detail}
 								<List tag="ul" class="pl-5 space-y-1">
-									{#each j.judge_detail as jd}
+									{#each j.judge_detail as jd, idx2}
 										<Li>
-											Judge {jd.id}
+											Judge {idx2 + 1}
+											<div class="inline text-gray-400">({jd.id})</div>
 											<List tag="ul" class="pl-5 space-y-1">
 												<Li>
 													실행시간: {jd.runtime} ms
