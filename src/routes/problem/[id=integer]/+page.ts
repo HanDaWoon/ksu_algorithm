@@ -2,7 +2,7 @@ export const ssr = false;
 import { customFetch } from '$lib/customFetch';
 import { get } from 'svelte/store';
 import { user } from '$lib/user';
-import type { IFetchResponse, IProblem, IProblemWithSubmit } from '$lib/types';
+import type { IFetchResponse, ISubmit } from '$lib/types';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }) => {
@@ -14,18 +14,24 @@ export const load: PageLoad = async ({ params }) => {
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
-			query: `{ problem(no: ${id}) { no title body } problemsWithSubmit { no lang code } }`
+			query: `{ problem(no: ${id}) { no title body } submits { id problemNo lang code result type } }`
 		})
 	}).then((res: IFetchResponse<any>) => {
 		if (res.errors) throw new Error(res.errors[0].message);
-		const { code, lang } = res.data.problemsWithSubmit.find(
-			(problem: IProblemWithSubmit) => problem.no === parseInt(id)
-		) || { code: '', lang: '' };
+
+		const { code, lang, result } = res.data.submits
+			.sort((submitA: ISubmit, submitB: ISubmit) => submitB.id - submitA.id)
+			.find((submit: ISubmit) => submit.problemNo === parseInt(id)) || {
+			code: '',
+			lang: '',
+			result: ''
+		};
 
 		return {
 			...res.data.problem,
 			code,
-			lang
+			lang,
+			result
 		};
 	});
 	return { problemData, signInUser };

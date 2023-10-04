@@ -5,6 +5,7 @@
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Monaco from 'svelte-monaco';
 	import { customFetch } from '$lib/customFetch';
+	import type { IFetchResponse, ISubmit } from '$lib/types';
 
 	let languages = [
 		{ value: 'c', name: 'C(99)' },
@@ -16,15 +17,17 @@
 		{ value: 'go', name: 'Go' },
 		{ value: 'javascript', name: 'JavaScript' }
 	];
-	const lang = sessionStorage.getItem('lang') ?? $page.data.problemData.lang;
-	let selected_language = lang ?? languages[0].value;
+	let selected_language =
+		$page.data.problemData.lang === ''
+			? sessionStorage.getItem('lang') ?? languages[0].value
+			: $page.data.problemData.lang;
 	let selected_theme: string = 'light';
 	let value = $page.data.problemData.code ?? '';
 	let submitId: number;
 
 	const handleSubmit = async (submitType: string) => {
 		sessionStorage.setItem('lang', selected_language);
-		await customFetch({
+		await customFetch<IFetchResponse<ISubmit>>({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -43,41 +46,45 @@
 					}
 				`
 			})
-		}).then((res) => {
+		}).then((res: IFetchResponse<ISubmit>) => {
 			console.log(res);
-			// submitId = res.data.updateSubmit.id;
+			submitId = res.data.submit.id;
 		});
 	};
 </script>
 
-<main class="h-screen">
-	<header class="flex flex-row justify-between px-4 py-1 gap-4 items-center bg-slate-200">
+<div class="h-code">
+	<header class="flex flex-row justify-between px-4 py-1 gap-4 items-center bg-slate-200 h-10">
 		<div class="text-xl font-semibold min-w-fit">{$page.data.problemData.title}</div>
 		<div class="flex flex-row gap-4">
 			{#if selected_theme === 'light'}
-				<Button on:click={() => (selected_theme = 'dark')} color={'dark'}>Dark</Button>
+				<Button size={'sm'} on:click={() => (selected_theme = 'dark')} color={'dark'}>Dark</Button>
 			{:else}
-				<Button on:click={() => (selected_theme = 'light')} color={'alternative'}>Light</Button>
+				<Button size={'sm'} on:click={() => (selected_theme = 'light')} color={'alternative'}>
+					Light
+				</Button>
 			{/if}
 			<Select
-				class={'text-lg w-fit h-fit'}
+				class={'text-sm w-fit h-fit'}
 				items={languages}
 				bind:value={selected_language}
 				size={'sm'}
 			/>
 		</div>
 	</header>
-	<Splitpanes style="background-color: white;">
+	<Splitpanes>
 		<Pane minSize={20} maxSize={50}>
-			<article
-				class="prose lg:prose-xl p-2 h-full bg-white overflow-auto"
-				contenteditable="false"
-				bind:innerHTML={$page.data.problemData.body}
-			/>
+			<div class="bg-white">
+				<article
+					class="prose lg:prose-xl px-4 bg-white h-screen overflow-y-scroll pb-8"
+					contenteditable="false"
+					bind:innerHTML={$page.data.problemData.body}
+				/>
+			</div>
 		</Pane>
 		<Pane>
-			<Splitpanes horizontal={true} style="background-color: white;">
-				<Pane size={65} minSize={40}>
+			<Splitpanes horizontal={true} pushOtherPanes={false}>
+				<Pane size={60} minSize={40} maxSize={75}>
 					<Monaco
 						options={{
 							fontSize: 18,
@@ -88,19 +95,28 @@
 						bind:value
 					/>
 				</Pane>
-				<Pane minSize={20}>
+				<Pane>
 					<RunOut {submitId} />
-					<Button
-						color="alternative"
-						class="absolute bottom-1 right-20"
-						on:click={() => handleSubmit('0')}>실행</Button
-					>
-					<Button
-						class="absolute bottom-1 right-2 bg-dodger-blue-600"
-						on:click={() => handleSubmit('1')}>제출</Button
-					>
+					<div class="fixed bottom-1 right-1">
+						<Button
+							class="font-bold"
+							color="alternative"
+							size={'md'}
+							on:click={() => handleSubmit('0')}>실행</Button
+						>
+						<Button
+							class="font-bold"
+							color="green"
+							size={'md'}
+							on:click={() => handleSubmit('1')}
+							disabled={$page.data.problemData.result === '0' &&
+								$page.data.problemData.type === '1'}
+						>
+							제출
+						</Button>
+					</div>
 				</Pane>
 			</Splitpanes>
 		</Pane>
 	</Splitpanes>
-</main>
+</div>

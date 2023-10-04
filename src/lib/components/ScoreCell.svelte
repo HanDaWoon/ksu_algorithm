@@ -25,7 +25,7 @@
 					class:bg-green-400={ps.result === '0'}
 				>
 					<div class="text-base font-medium">
-						{ps.score}
+						{tries[ps.no].score}
 					</div>
 					<div>
 						{tries[ps.no].try_cnt}

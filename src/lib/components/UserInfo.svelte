@@ -17,14 +17,13 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no id result title score state type extra} }`
+					query: `{ problemsWithSubmitByStudId(studId: ${rank.id}) { no result state } }`
 				})
 			});
 
 			if (response.errors) {
 				throw new Error(response.errors[0].message);
 			}
-
 			problemWithSubmit = response.data.problemsWithSubmitByStudId;
 		} catch (e) {
 			console.log(e);

@@ -25,9 +25,9 @@
 	};
 </script>
 
-<header class="bg-indigo-600">
+<header class="bg-indigo-600 h-12 items-center flex">
 	<nav class="container mx-auto">
-		<div class="w-full py-4 flex items-center justify-between">
+		<div class="w-full flex items-center justify-between">
 			<div class="flex items-center">
 				<div class="ml-10 space-x-6">
 					{#each navigation as link}
