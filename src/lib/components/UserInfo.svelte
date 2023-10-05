@@ -42,7 +42,9 @@
 	<td>{rank.rank}</td>
 	<td class="">
 		<p>{rank.studNo}</p>
-		<p class="text-gray-500">{rank.team}</p>
+		{#if rank.team}
+			<p class="text-gray-500">{rank.team}</p>
+		{/if}
 	</td>
 	<td class=""><b>{rank.k}</b> {rank.score}</td>
 	{#if problemWithSubmit}

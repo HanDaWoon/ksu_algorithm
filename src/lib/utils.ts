@@ -83,9 +83,19 @@ export const signOut = async () => {
 };
 
 export function escapeSpecialChars(str: string) {
-	return str.replace(/["]/g, '\\$&');
+	return str
+		.replace(/\\/g, '\\\\') // escape backslashes first
+		.replace(/\n/g, '\\n') // escape newlines
+		.replace(/\r/g, '\\r') // escape carriage returns
+		.replace(/\t/g, '\\t') // escape tabs
+		.replace(/"/g, '\\"'); // escape quotes
 }
 
 export function unescapeSpecialChars(str: string) {
-	return str.replace(/\\(["])/g, '$1');
+	return str
+		.replace(/\\\\/g, '\\') // unescape backslashes
+		.replace(/\\n/g, '\n') // unescape newlines
+		.replace(/\\r/g, '\r') // unescape carriage returns
+		.replace(/\\t/g, '\t') // unescape tabs
+		.replace(/\\"/g, '"'); // unescape quotes
 }

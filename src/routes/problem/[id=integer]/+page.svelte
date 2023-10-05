@@ -7,6 +7,7 @@
 	import type { IFetchResponse, IProblemJudgeResult, ISubmit } from '$lib/types';
 	import { escapeSpecialChars, handleJudges } from '$lib/utils';
 	import { onDestroy } from 'svelte';
+	import Problem from '$lib/components/Problem.svelte';
 
 	let languages = [
 		{ value: 'c', name: 'C(99)' },
@@ -61,7 +62,7 @@
 	const handleRunOut = async () => {
 		judges = await handleJudges(submitId);
 		// null이 없으면 중단
-		if (judges.judge.find((j) => j.judge_detail !== null)) {
+		if (judges.judge.every((j) => j.judge_detail !== null)) {
 			clearInterval(refreshIntervalId);
 			return;
 		}
@@ -91,12 +92,8 @@
 	</header>
 	<Splitpanes>
 		<Pane minSize={20} maxSize={50}>
-			<div class="bg-white">
-				<article
-					class="prose lg:prose-xl px-4 bg-white h-screen overflow-y-scroll pb-8"
-					contenteditable="false"
-					bind:innerHTML={$page.data.problemData.body}
-				/>
+			<div class="bg-white w-full h-full">
+				<Problem problemHtml={$page.data.problemData.body} />
 			</div>
 		</Pane>
 		<Pane>
@@ -116,14 +113,16 @@
 					<div class="h-full overflow-auto bg-mystic-100">
 						{#if judges}
 							<List tag="ul">
-								{#each judges.judge as j}
+								{#each judges.judge as j, idx}
 									<Li>
-										테스트 케이스 {j.testcase_id}
+										테스트 케이스 {idx}
+										<div class="inline text-gray-400">{j.testcase_id}</div>
 										{#if j.judge_detail}
-											<List tag="ul" class="pl-5 space-y-1">
-												{#each j.judge_detail as jd}
+											<List tag="ul" cla}ss="pl-5 space-y-1">
+												{#each j.judge_detail as jd, idx2}
 													<Li>
-														Judge {jd.id}
+														Judge {idx2}
+														<div class="inline text-gray-400">{jd.id}</div>
 														<List tag="ul" class="pl-5 space-y-1">
 															<Li>
 																실행시간: {jd.runtime} ms
@@ -147,6 +146,8 @@
 													</Li>
 												{/each}
 											</List>
+										{:else}
+											<div class="text-gray-400 pl-5 space-y-1">실행중...</div>
 										{/if}
 									</Li>
 								{/each}

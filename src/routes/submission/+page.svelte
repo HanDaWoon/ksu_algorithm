@@ -99,7 +99,9 @@
 							</td>
 							<td class="p-2 whitespace-nowrap font-medium">
 								<p>{submit.studNo}</p>
-								<p class="text-gray-500">{submit.team}</p>
+								{#if submit.team}
+									<p class="text-gray-500">{submit.team}</p>
+								{/if}
 							</td>
 							<td class="p-2">
 								<a href={`problem/${submit.problemNo}`}>{submit.problemNo}</a>

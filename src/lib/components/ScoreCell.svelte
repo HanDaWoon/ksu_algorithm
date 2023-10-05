@@ -19,7 +19,7 @@
 		{#if tries}
 			{#if tries[ps.no] && tries[ps.no].try_cnt > 0}
 				<div
-					class="text-black"
+					class="text-black w-20"
 					class:bg-cornflower-blue-500={ps.state === '0' || ps.state === '1'}
 					class:bg-red-orange-500={ps.result === '1'}
 					class:bg-green-400={ps.result === '0'}
